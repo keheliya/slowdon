@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-ink Mastodon</title>
+    <link rel="stylesheet" href="/css/eink.css">
+</head>
+<body>
+    <header>
+        <h1>E-ink Mastodon</h1>
+        <nav>
+            <a href="/timeline/home/1" class="nav-button <%= currentView === 'home' ? 'active' : '' %>">Home</a>
+            <a href="/timeline/local/1" class="nav-button <%= currentView === 'local' ? 'active' : '' %>">Local</a>
+            <a href="/timeline/public/1" class="nav-button <%= currentView === 'public' ? 'active' : '' %>">Public</a>
+        </nav>
+    </header>
+    
+    <main>
+        <div class="timeline">
+            <% posts.forEach(post => { %>
+                <article class="post">
+                    <div class="post-header">
+                        <strong><%= post.account.display_name %></strong>
+                        <span class="username">@<%= post.account.username %></span>
+                    </div>
+                    <div class="post-content">
+                        <%= post.content.replace(/<[^>]*>/g, '') %>
+                    </div>
+                    <div class="post-meta">
+                        <span><%= new Date(post.created_at).toLocaleString() %></span>
+                    </div>
+                </article>
+            <% }); %>
+        </div>
+        
+        <div class="navigation-controls">
+            <% if (page > 1) { %>
+                <a href="/timeline/<%= currentView %>/<%= page - 1 %>" class="nav-button large-button">
+                    ← Previous Page
+                </a>
+            <% } else { %>
+                <span class="nav-button large-button disabled">← Previous Page</span>
+            <% } %>
+            
+            <span class="page-indicator">Page <%= page %> of <%= totalPages %></span>
+            
+            <% if (page < totalPages) { %>
+                <a href="/timeline/<%= currentView %>/<%= page + 1 %>" class="nav-button large-button">
+                    Next Page →
+                </a>
+            <% } else { %>
+                <span class="nav-button large-button disabled">Next Page →</span>
+            <% } %>
+        </div>
+    </main>
+    
+    <script src="/js/navigation.js"></script>
+</body>
+</html>

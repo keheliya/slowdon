@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - E-ink Mastodon</title>
+    <link rel="stylesheet" href="/css/eink.css">
+</head>
+<body>
+    <header>
+        <h1>E-ink Mastodon</h1>
+    </header>
+    
+    <main>
+        <div class="login-container">
+            <h2>Login to your Mastodon Account</h2>
+            
+            <% if (error) { %>
+                <div class="error-message">
+                    <%= error %>
+                </div>
+            <% } %>
+            
+            <form action="/login" method="POST">
+                <div class="form-group">
+                    <label for="instance">Mastodon Instance URL:</label>
+                    <input type="text" id="instance" name="instance" placeholder="e.g., mastodon.social" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="access_token">Access Token:</label>
+                    <input type="text" id="access_token" name="access_token" placeholder="Your Mastodon access token" required>
+                    <p class="help-text">You can generate an access token in your Mastodon account settings under Development > Applications</p>
+                </div>
+                
+                <button type="submit" class="login-button">Login</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>
