@@ -29,26 +29,118 @@ app.get('/home', async (req, res) => {
   if (!req.session.accessToken) {
     return res.redirect('/');
   }
-  
+
   try {
-    // Fetch home timeline from Mastodon API
+    // Fetch initial home timeline posts from Mastodon API
     const response = await axios.get(`${req.session.instanceUrl}/api/v1/timelines/home`, {
       headers: {
         'Authorization': `Bearer ${req.session.accessToken}`
+      },
+      params: {
+        limit: 10 // Fetch only 10 posts initially
       }
     });
-    
-    // Render the timeline with the fetched posts
-    res.render('timeline', { 
-      posts: response.data, 
-      page: 1, 
-      pageSize: 10,
-      totalPages: Math.ceil(response.data.length / 10),
-      currentView: 'home'
+
+    // Render the timeline with the initial posts
+    res.render('timeline', {
+      posts: response.data,
+      currentView: 'home' // Pass current view for API calls
     });
   } catch (error) {
     console.error('Error fetching timeline:', error);
     res.render('error', { message: 'Failed to fetch timeline' });
+  }
+});
+
+app.get('/local', async (req, res) => {
+  if (!req.session.accessToken) {
+    return res.redirect('/');
+  }
+
+  try {
+    // Fetch initial local timeline posts from Mastodon API
+    const response = await axios.get(`${req.session.instanceUrl}/api/v1/timelines/public`, {
+      headers: {
+        'Authorization': `Bearer ${req.session.accessToken}`
+      },
+      params: {
+        local: true,
+        limit: 10 // Fetch only 10 posts initially
+      }
+    });
+
+    // Render the timeline with the initial posts
+    res.render('timeline', {
+      posts: response.data,
+      currentView: 'local' // Pass current view for API calls
+    });
+  } catch (error) {
+    console.error('Error fetching timeline:', error);
+    res.render('error', { message: 'Failed to fetch timeline' });
+  }
+});
+
+app.get('/public', async (req, res) => {
+  if (!req.session.accessToken) {
+    return res.redirect('/');
+  }
+
+  try {
+    // Fetch initial public timeline posts from Mastodon API
+    const response = await axios.get(`${req.session.instanceUrl}/api/v1/timelines/public`, {
+      headers: {
+        'Authorization': `Bearer ${req.session.accessToken}`
+      },
+      params: {
+        limit: 10 // Fetch only 10 posts initially
+      }
+    });
+
+    // Render the timeline with the initial posts
+    res.render('timeline', {
+      posts: response.data,
+      currentView: 'public' // Pass current view for API calls
+    });
+  } catch (error) {
+    console.error('Error fetching timeline:', error);
+    res.render('error', { message: 'Failed to fetch timeline' });
+  }
+});
+
+app.get('/api/timeline/:view/more', async (req, res) => {
+  if (!req.session.accessToken) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const view = req.params.view;
+  const max_id = req.query.max_id;
+
+  if (!max_id) {
+    return res.status(400).json({ error: 'max_id is required' });
+  }
+
+  try {
+    let url = `${req.session.instanceUrl}/api/v1/timelines/home`;
+    if (view === 'public') {
+      url = `${req.session.instanceUrl}/api/v1/timelines/public`;
+    } else if (view === 'local') {
+      url = `${req.session.instanceUrl}/api/v1/timelines/public?local=true`;
+    }
+
+    const response = await axios.get(url, {
+      headers: {
+        'Authorization': `Bearer ${req.session.accessToken}`
+      },
+      params: {
+        limit: 10,
+        max_id: max_id
+      }
+    });
+
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error fetching more timeline posts:', error);
+    res.status(500).json({ error: 'Failed to fetch more timeline posts' });
   }
 });
 
@@ -82,50 +174,6 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// Route for navigation (for page up/down functionality)
-app.get('/timeline/:view/:page', async (req, res) => {
-  if (!req.session.accessToken) {
-    return res.redirect('/');
-  }
-  
-  const view = req.params.view;
-  const page = parseInt(req.params.page) || 1;
-  const pageSize = 10;
-  
-  try {
-    // Determine which timeline to fetch
-    let url = `${req.session.instanceUrl}/api/v1/timelines/home`;
-    if (view === 'public') {
-      url = `${req.session.instanceUrl}/api/v1/timelines/public`;
-    } else if (view === 'local') {
-      url = `${req.session.instanceUrl}/api/v1/timelines/public?local=true`;
-    }
-    
-    const response = await axios.get(url, {
-      headers: {
-        'Authorization': `Bearer ${req.session.accessToken}`
-      }
-    });
-    
-    // Calculate pagination
-    const totalPosts = response.data.length;
-    const totalPages = Math.ceil(totalPosts / pageSize);
-    const startIndex = (page - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    const paginatedPosts = response.data.slice(startIndex, endIndex);
-    
-    res.render('timeline', { 
-      posts: paginatedPosts,
-      page: page,
-      pageSize: pageSize,
-      totalPages: totalPages,
-      currentView: view
-    });
-  } catch (error) {
-    console.error('Error fetching timeline:', error);
-    res.render('error', { message: 'Failed to fetch timeline' });
-  }
-});
 
 app.listen(port, () => {
   console.log(`E-ink Mastodon app listening on port ${port}`);

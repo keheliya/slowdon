@@ -38,7 +38,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function getCurrentFontSizeRem() {
         const currentSize = window.getComputedStyle(bodyElement).fontSize;
-        // Need to convert px to rem if necessary, assuming 1rem = 16px (browser default)
         let size = parseFloat(currentSize);
         if (currentSize.includes('px')) {
             // Rough conversion assuming 1rem = 16px (might not be perfect)
@@ -46,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
             size = size / rootFontSize;
         }
         // Fallback if parsing fails
-        return isNaN(size) ? 1.1 : size; 
+        return isNaN(size) ? 1.1 : size;
     }
 
     function updateAllFontSizes(newBodySizeRem) {
@@ -78,6 +77,116 @@ document.addEventListener('DOMContentLoaded', function() {
             updateAllFontSizes(newSizeRem);
         });
     }
+
+    // Infinite scroll implementation
+    let isLoading = false;
+    let lastPostId = null;
+    const scrollThreshold = 200; // Load more posts when within 200px of the bottom
+    const timeline = document.querySelector('.timeline'); // Select the timeline container
+    const currentView = timeline ? timeline.dataset.currentView : 'home'; // Get the current view from the timeline container
+    const loadingIndicator = document.createElement('div');
+    loadingIndicator.textContent = 'Loading...';
+    loadingIndicator.style.textAlign = 'center';
+    timeline.appendChild(loadingIndicator);
+    loadingIndicator.style.display = 'none';
+
+    function loadMorePosts() {
+        if (isLoading) return;
+        isLoading = true;
+        loadingIndicator.style.display = 'block';
+
+        const url = `/api/timeline/${currentView}/more?max_id=${lastPostId}`;
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch more posts');
+                }
+                return response.json();
+            })
+            .then(newPosts => {
+                if (newPosts.length === 0) {
+                    // No more posts to load
+                    window.removeEventListener('scroll', handleScroll);
+                    loadingIndicator.style.display = 'none';
+                    return;
+                }
+
+                newPosts.forEach(post => {
+                    const article = document.createElement('article');
+                    article.classList.add('post');
+                    article.dataset.postId = post.id; // Set the data-post-id attribute
+
+                    let postContent = '';
+                    if (post.reblog) {
+                        // This is a retoot/boost
+                        postContent = `
+                            <div class="post-header">
+                                <strong>${post.account.display_name}</strong>
+                                <span class="username">@${post.account.username}</span>
+                                <span> boosted</span>
+                            </div>
+                            <div class="post-header">
+                                <strong>${post.reblog.account.display_name}</strong>
+                                <span class="username">@${post.reblog.account.username}</span>
+                            </div>
+                            <div class="post-content">
+                                ${post.reblog.content.replace(/<[^>]*>/g, '')}
+                            </div>
+                            <div class="post-meta">
+                                <span>${new Date(post.reblog.created_at).toLocaleString()}</span>
+                            </div>
+                        `;
+                    } else {
+                        // Regular post
+                        postContent = `
+                            <div class="post-header">
+                                <strong>${post.account.display_name}</strong>
+                                <span class="username">@${post.account.username}</span>
+                            </div>
+                            <div class="post-content">
+                                ${post.content.replace(/<[^>]*>/g, '')}
+                            </div>
+                            <div class="post-meta">
+                                <span>${new Date(post.created_at).toLocaleString()}</span>
+                            </div>
+                        `;
+                    }
+
+                    article.innerHTML = postContent;
+                    timeline.appendChild(article);
+                    lastPostId = post.id;
+                });
+            })
+            .catch(error => {
+                console.error('Error loading more posts:', error);
+            })
+            .finally(() => {
+                isLoading = false;
+                loadingIndicator.style.display = 'none';
+            });
+    }
+
+    function handleScroll() {
+        if (isLoading) return;
+
+        const documentHeight = document.documentElement.scrollHeight;
+        const windowHeight = window.innerHeight;
+        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        const scrollPosition = windowHeight + scrollTop;
+
+        if (documentHeight - scrollPosition <= scrollThreshold) {
+            loadMorePosts();
+        }
+    }
+
+    // Get initial lastPostId
+    const initialPosts = document.querySelectorAll('.post');
+    if (initialPosts.length > 0) {
+        lastPostId = initialPosts[initialPosts.length - 1].dataset.postId;
+    }
+
+    window.addEventListener('scroll', handleScroll);
     
     // Add additional features here if needed, but keep JavaScript minimal
   });
