@@ -1,5 +1,5 @@
 {
-  "name": "eink-mastodon",
+  "name": "slowdon",
   "version": "1.0.0",
   "description": "mastodon client optimized for viewing in eink screens",
   "main": "app.js",

@@ -37,5 +37,30 @@
             </form>
         </div>
     </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const instanceInput = document.getElementById('instance');
+            const tokenInput = document.getElementById('access_token');
+            const loginForm = document.querySelector('form');
+
+            // Load saved values from localStorage
+            const savedInstance = localStorage.getItem('mastodonInstance');
+            const savedToken = localStorage.getItem('mastodonAccessToken');
+
+            if (savedInstance) {
+                instanceInput.value = savedInstance;
+            }
+            if (savedToken) {
+                tokenInput.value = savedToken;
+            }
+
+            // Save values to localStorage on form submit
+            loginForm.addEventListener('submit', () => {
+                localStorage.setItem('mastodonInstance', instanceInput.value);
+                localStorage.setItem('mastodonAccessToken', tokenInput.value);
+            });
+        });
+    </script>
 </body>
 </html>
