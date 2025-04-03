@@ -20,16 +20,36 @@
         <div class="timeline">
             <% posts.forEach(post => { %>
                 <article class="post">
-                    <div class="post-header">
-                        <strong><%= post.account.display_name %></strong>
-                        <span class="username">@<%= post.account.username %></span>
-                    </div>
-                    <div class="post-content">
-                        <%= post.content.replace(/<[^>]*>/g, '') %>
-                    </div>
-                    <div class="post-meta">
-                        <span><%= new Date(post.created_at).toLocaleString() %></span>
-                    </div>
+                    <% if (post.reblog) { %>
+                        <!-- This is a retoot/boost -->
+                        <div class="post-header">
+                            <strong><%= post.account.display_name %></strong>
+                            <span class="username">@<%= post.account.username %></span>
+                            <span> boosted</span>
+                        </div>
+                        <div class="post-header">
+                            <strong><%= post.reblog.account.display_name %></strong>
+                            <span class="username">@<%= post.reblog.account.username %></span>
+                        </div>
+                        <div class="post-content">
+                            <%= post.reblog.content.replace(/<[^>]*>/g, '') %>
+                        </div>
+                        <div class="post-meta">
+                            <span><%= new Date(post.reblog.created_at).toLocaleString() %></span>
+                        </div>
+                    <% } else { %>
+                        <!-- Regular post -->
+                        <div class="post-header">
+                            <strong><%= post.account.display_name %></strong>
+                            <span class="username">@<%= post.account.username %></span>
+                        </div>
+                        <div class="post-content">
+                            <%= post.content.replace(/<[^>]*>/g, '') %>
+                        </div>
+                        <div class="post-meta">
+                            <span><%= new Date(post.created_at).toLocaleString() %></span>
+                        </div>
+                    <% } %>
                 </article>
             <% }); %>
         </div>

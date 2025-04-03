@@ -55,7 +55,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Update post-content font size to maintain the ratio
         const newPostContentSize = newBodySizeRem * postContentRatio;
-        postContentElements.forEach(element => {
+        
+        // Get all post-content elements (including any that might have been added dynamically)
+        const allPostContentElements = document.querySelectorAll('.post-content');
+        allPostContentElements.forEach(element => {
             element.style.fontSize = newPostContentSize + 'rem';
         });
     }
