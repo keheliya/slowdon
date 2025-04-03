@@ -18,6 +18,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    const scrollToTopButton = document.getElementById('scroll-to-top-button');
+
+    if (scrollToTopButton) {
+        scrollToTopButton.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth' // Optional: Add smooth scrolling
+            });
+        });
+    }
+
     // Font size adjustment
     const fontIncreaseButton = document.getElementById('font-increase');
     const fontDecreaseButton = document.getElementById('font-decrease');
