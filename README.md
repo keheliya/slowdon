@@ -17,7 +17,7 @@ The primary goal of this project is to offer a simplified, high-contrast, and mi
 
 ## Getting Started
 
-*(Instructions on how to set up and run the project will go here - I can add these later if you provide the details)*
+Run the following commands to run locally. By default, it uses port 3000.
 
 1.  Clone the repository: `git clone git@github.com:keheliya/slowdon.git`
 2.  Install dependencies: `npm install`
