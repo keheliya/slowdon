@@ -197,6 +197,28 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     window.addEventListener('scroll', handleScroll);
+
+    // Dark mode toggle implementation
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
+    const darkModeClass = 'dark-mode';
+
+    if (darkModeToggle) {
+        darkModeToggle.addEventListener('click', function() {
+            if (document.body.classList.contains(darkModeClass)) {
+                document.body.classList.remove(darkModeClass);
+                localStorage.setItem('darkMode', 'disabled');
+            } else {
+                document.body.classList.add(darkModeClass);
+                localStorage.setItem('darkMode', 'enabled');
+            }
+        });
+
+        // Check localStorage for dark mode preference
+        const darkModePreference = localStorage.getItem('darkMode');
+        if (darkModePreference === 'enabled') {
+            document.body.classList.add(darkModeClass);
+        }
+    }
     
     // Add additional features here if needed, but keep JavaScript minimal
   });

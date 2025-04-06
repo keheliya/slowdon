@@ -1,20 +1,48 @@
 const express = require('express');
 const axios = require('axios');
 const session = require('express-session');
+const helmet = require('helmet');
+const { URL } = require('url');
 const app = express();
 const port = process.env.PORT || 3000;
+
+// Load environment variables
+require('dotenv').config();
 
 // Set up EJS as the view engine
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 
+// Add security headers using helmet
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:"]
+    }
+  }
+}));
+
 // Session setup for storing auth tokens
+// Check for session secret in environment variables
+const sessionSecret = process.env.SESSION_SECRET || 'change-this-to-a-secure-secret';
+if (sessionSecret === 'change-this-to-a-secure-secret') {
+  console.warn('WARNING: Using default session secret. Set SESSION_SECRET in environment variables for production use.');
+}
+
 app.use(session({
-  secret: 'change-this-to-a-secure-secret',
+  secret: sessionSecret,
   resave: false,
-  saveUninitialized: true,
-  cookie: { secure: process.env.NODE_ENV === 'production' }
+  saveUninitialized: false, // Changed to false for better security
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    sameSite: 'lax',
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
 }));
 
 // Routes
@@ -47,8 +75,22 @@ app.get('/home', async (req, res) => {
       currentView: 'home' // Pass current view for API calls
     });
   } catch (error) {
-    console.error('Error fetching timeline:', error);
-    res.render('error', { message: 'Failed to fetch timeline' });
+    console.error('Error fetching home timeline:', error);
+    let errorMessage = 'Failed to fetch timeline';
+    
+    if (error.response) {
+      // The request was made and the server responded with a status code outside of 2xx
+      if (error.response.status === 401) {
+        errorMessage = 'Authentication error. Please try logging in again.';
+      } else if (error.response.status === 404) {
+        errorMessage = 'Resource not found. Please check your instance URL.';
+      }
+    } else if (error.request) {
+      // The request was made but no response was received
+      errorMessage = 'Could not connect to the Mastodon instance. Please check your internet connection.';
+    }
+    
+    res.render('error', { message: errorMessage });
   }
 });
 
@@ -75,8 +117,22 @@ app.get('/local', async (req, res) => {
       currentView: 'local' // Pass current view for API calls
     });
   } catch (error) {
-    console.error('Error fetching timeline:', error);
-    res.render('error', { message: 'Failed to fetch timeline' });
+    console.error('Error fetching local timeline:', error);
+    let errorMessage = 'Failed to fetch timeline';
+    
+    if (error.response) {
+      // The request was made and the server responded with a status code outside of 2xx
+      if (error.response.status === 401) {
+        errorMessage = 'Authentication error. Please try logging in again.';
+      } else if (error.response.status === 404) {
+        errorMessage = 'Resource not found. Please check your instance URL.';
+      }
+    } else if (error.request) {
+      // The request was made but no response was received
+      errorMessage = 'Could not connect to the Mastodon instance. Please check your internet connection.';
+    }
+    
+    res.render('error', { message: errorMessage });
   }
 });
 
@@ -102,8 +158,22 @@ app.get('/public', async (req, res) => {
       currentView: 'public' // Pass current view for API calls
     });
   } catch (error) {
-    console.error('Error fetching timeline:', error);
-    res.render('error', { message: 'Failed to fetch timeline' });
+    console.error('Error fetching public timeline:', error);
+    let errorMessage = 'Failed to fetch timeline';
+    
+    if (error.response) {
+      // The request was made and the server responded with a status code outside of 2xx
+      if (error.response.status === 401) {
+        errorMessage = 'Authentication error. Please try logging in again.';
+      } else if (error.response.status === 404) {
+        errorMessage = 'Resource not found. Please check your instance URL.';
+      }
+    } else if (error.request) {
+      // The request was made but no response was received
+      errorMessage = 'Could not connect to the Mastodon instance. Please check your internet connection.';
+    }
+    
+    res.render('error', { message: errorMessage });
   }
 });
 
@@ -140,7 +210,22 @@ app.get('/api/timeline/:view/more', async (req, res) => {
     res.json(response.data);
   } catch (error) {
     console.error('Error fetching more timeline posts:', error);
-    res.status(500).json({ error: 'Failed to fetch more timeline posts' });
+    
+    let errorMessage = 'Failed to fetch more timeline posts';
+    let statusCode = 500;
+    
+    if (error.response) {
+      statusCode = error.response.status;
+      if (error.response.status === 401) {
+        errorMessage = 'Authentication error';
+      } else if (error.response.status === 404) {
+        errorMessage = 'Resource not found';
+      }
+    } else if (error.request) {
+      errorMessage = 'Could not connect to the Mastodon instance';
+    }
+    
+    res.status(statusCode).json({ error: errorMessage });
   }
 });
 
@@ -151,8 +236,29 @@ app.post('/login', async (req, res) => {
   if (!instance || !access_token) {
     return res.render('login', { error: 'Please provide both instance URL and access token' });
   }
-  
-  const instanceUrl = instance.startsWith('http') ? instance : `https://${instance}`;
+
+  // Validate instance URL
+  let instanceUrl;
+  try {
+    // Add https:// if not present
+    const urlToCheck = instance.startsWith('http') ? instance : `https://${instance}`;
+    const parsedUrl = new URL(urlToCheck);
+    
+    // Ensure protocol is https for security
+    if (parsedUrl.protocol !== 'https:' && process.env.NODE_ENV === 'production') {
+      return res.render('login', { error: 'Instance URL must use HTTPS for security' });
+    }
+    
+    // Validate the domain looks like a Mastodon instance
+    if (!parsedUrl.hostname.includes('.')) {
+      return res.render('login', { error: 'Invalid instance URL format' });
+    }
+    
+    instanceUrl = parsedUrl.origin;
+  } catch (error) {
+    console.error('URL validation error:', error);
+    return res.render('login', { error: 'Invalid instance URL format' });
+  }
   
   try {
     // Verify the token by fetching the user's account
@@ -170,10 +276,45 @@ app.post('/login', async (req, res) => {
     res.redirect('/home');
   } catch (error) {
     console.error('Login error:', error);
-    res.render('login', { error: 'Invalid credentials or instance URL' });
+    
+    let errorMessage = 'Invalid credentials or instance URL';
+    
+    if (error.response) {
+      // Handle specific response status codes
+      if (error.response.status === 401 || error.response.status === 403) {
+        errorMessage = 'Invalid access token. Please check your credentials.';
+      } else if (error.response.status === 404) {
+        errorMessage = 'API endpoint not found. Is this a valid Mastodon instance?';
+      } else if (error.response.status >= 500) {
+        errorMessage = 'The Mastodon server is experiencing issues. Please try again later.';
+      }
+    } else if (error.request) {
+      errorMessage = 'Could not connect to the Mastodon instance. Please check the URL and your internet connection.';
+    }
+    
+    res.render('login', { error: errorMessage });
   }
 });
 
+// Logout route
+app.get('/logout', (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      console.error('Error destroying session:', err);
+    }
+    res.redirect('/');
+  });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).render('error', { 
+    message: process.env.NODE_ENV === 'production' 
+      ? 'An unexpected error occurred' 
+      : `Error: ${err.message}`
+  });
+});
 
 app.listen(port, () => {
   console.log(`E-ink Mastodon app listening on port ${port}`);

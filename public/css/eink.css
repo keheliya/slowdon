@@ -198,3 +198,18 @@
     padding: 2rem;
     text-align: center;
   }
+
+  /* Dark mode styles */
+  body.dark-mode {
+    background-color: #121212;
+    color: #ffffff;
+  }
+
+  body.dark-mode a {
+    color: #bb86fc;
+  }
+
+  body.dark-mode .post {
+    background-color: #1e1e1e;
+    border-color: #333333;
+  }
