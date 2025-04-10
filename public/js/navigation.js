@@ -198,5 +198,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.addEventListener('scroll', handleScroll);
     
+    // Theme toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function() {
+            const theme = localStorage.getItem('theme');
+            if (theme === 'dark') {
+                localStorage.removeItem('theme');
+                document.querySelector('link[href="/css/eink-dark.css"]')?.remove();
+            } else {
+                localStorage.setItem('theme', 'dark');
+                const link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = '/css/eink-dark.css';
+                document.head.appendChild(link);
+            }
+        });
+
+        // Check initial theme
+        if (localStorage.getItem('theme') === 'dark') {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = '/css/eink-dark.css';
+            document.head.appendChild(link);
+        }
+    }
+
     // Add additional features here if needed, but keep JavaScript minimal
   });

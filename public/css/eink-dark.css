@@ -1,0 +1,11 @@
+:root {
+    --text-color: #fff;
+    --background-color: #000;
+    --border-color: #444;
+    --highlight-color: #222;
+    --disabled-color: #666;
+}
+
+.scroll-button i {
+    color: #fff;
+}
