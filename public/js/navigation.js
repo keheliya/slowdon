@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <span class="username">@${post.reblog.account.username}</span>
                             </div>
                             <div class="post-content">
-                                ${post.reblog.content.replace(/<[^>]*>/g, '')}
+                                ${post.reblog.content}
                             </div>
                             <div class="post-meta">
                                 <span>${new Date(post.reblog.created_at).toLocaleString()}</span>
@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <span class="username">@${post.account.username}</span>
                             </div>
                             <div class="post-content">
-                                ${post.content.replace(/<[^>]*>/g, '')}
+                                ${post.content}
                             </div>
                             <div class="post-meta">
                                 <span>${new Date(post.created_at).toLocaleString()}</span>
