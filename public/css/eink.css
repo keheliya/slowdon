@@ -145,43 +145,102 @@
   /* Login page styles */
   .login-container {
     max-width: 600px;
-    margin: 0 auto;
+    margin: 2rem auto;
     padding: 2rem;
-    border: 1px solid var(--border-color);
+    border: 2px solid var(--border-color);
+    text-align: center;
   }
-  
+
+  .login-container h2 {
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+  }
+
+  .login-info {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    background-color: var(--highlight-color);
+  }
+
+  .help-text {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #555;
+    margin: 0;
+  }
+
+  .login-button {
+    display: inline-block;
+    background-color: var(--background-color);
+    border: 2px solid var(--border-color);
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--text-color);
+    margin-top: 1rem;
+    transition: background-color 0.2s;
+  }
+
+  .login-button:hover,
+  .login-button:focus {
+    background-color: var(--highlight-color);
+  }
+
+  /* Form styles (for enter_code.ejs) */
   .form-group {
     margin-bottom: 1.5rem;
+    text-align: left;
   }
-  
+
   .form-group label {
     display: block;
     margin-bottom: 0.5rem;
     font-weight: bold;
   }
-  
+
   .form-group input {
     width: 100%;
-    padding: 0.75rem;
-    font-size: 1.1rem;
-    border: 1px solid var(--border-color);
-  }
-  
-  .help-text {
-    font-size: 0.9rem;
-    margin-top: 0.5rem;
-    color: #555;
-  }
-  
-  .login-button {
-    background-color: var(--background-color);
-    border: 2px solid var(--border-color);
-    padding: 0.75rem 1.5rem;
+    padding: 1rem;
     font-size: 1.2rem;
-    font-weight: bold;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 1rem;
+    border: 2px solid var(--border-color);
+    background-color: var(--background-color);
+  }
+
+  .form-group input:focus {
+    outline: none;
+    border-color: #555;
+  }
+
+  /* Authorization code page specific styles */
+  .auth-instructions {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    border: 2px solid var(--border-color);
+    background-color: var(--highlight-color);
+  }
+
+  .auth-instructions ol {
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+  }
+
+  .auth-instructions li {
+    margin: 0.75rem 0;
+    line-height: 1.6;
+  }
+
+  .auth-instructions strong {
+    font-size: 1.1rem;
+  }
+
+  .container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 2rem;
+    border: 2px solid var(--border-color);
   }
   
   .error-message {

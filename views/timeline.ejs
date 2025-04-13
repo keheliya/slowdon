@@ -11,12 +11,13 @@
     <header>
         <h1>E-ink Mastodon</h1>
         <nav>
-            <a href="/timeline/home/1" class="nav-button <%= currentView === 'home' ? 'active' : '' %>">Home</a>
-            <a href="/timeline/local/1" class="nav-button <%= currentView === 'local' ? 'active' : '' %>">Local</a>
-            <a href="/timeline/public/1" class="nav-button <%= currentView === 'public' ? 'active' : '' %>">Public</a>
+            <a href="/home" class="nav-button <%= currentView === 'home' ? 'active' : '' %>">Home</a>
+            <a href="/local" class="nav-button <%= currentView === 'local' ? 'active' : '' %>">Local</a>
+            <a href="/public" class="nav-button <%= currentView === 'public' ? 'active' : '' %>">Public</a>
+            <a href="/logout" class="nav-button">Logout</a> <!-- Added Logout link -->
         </nav>
     </header>
-    
+
     <main>
         <div class="timeline" data-current-view="<%= currentView %>">
             <% posts.forEach(post => { %>

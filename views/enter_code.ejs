@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enter Authorization Code - E-ink Mastodon</title>
+    <link rel="stylesheet" href="/css/eink.css">
+</head>
+<body>
+    <header>
+        <h1>E-ink Mastodon</h1>
+    </header>
+
+    <main>
+        <div class="container">
+            <h2>Enter Authorization Code</h2>
+            
+            <div class="auth-instructions">
+                <p><strong>Steps to complete login:</strong></p>
+                <ol>
+                    <li>Look for the authorization code on the Fosstodon page you were just redirected to.</li>
+                    <li>Copy the code (it should look like a string of letters and numbers).</li>
+                    <li>Paste that code in the input field below.</li>
+                </ol>
+            </div>
+
+            <% if (error) { %>
+                <div class="error-message">
+                    Error: <%= error %>
+                </div>
+            <% } %>
+
+            <form action="/submit-code" method="POST">
+                <div class="form-group">
+                    <label for="code">Authorization Code:</label>
+                    <input type="text" id="code" name="code" 
+                           placeholder="Paste your authorization code here"
+                           required autofocus>
+                    <p class="help-text">The code was shown on the Fosstodon authorization page. If you closed it accidentally, please <a href="/auth/mastodon">start over</a>.</p>
+                </div>
+                <button type="submit" class="login-button">Complete Login</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

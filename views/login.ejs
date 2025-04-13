@@ -13,54 +13,31 @@
     
     <main>
         <div class="login-container">
-            <h2>Login to your Mastodon Account</h2>
-            
+            <h2>Login via Mastodon</h2>
+
             <% if (error) { %>
                 <div class="error-message">
-                    <%= error %>
+                    Error: <%= error %>
                 </div>
             <% } %>
-            
-            <form action="/login" method="POST">
-                <div class="form-group">
-                    <label for="instance">Mastodon Instance URL:</label>
-                    <input type="text" id="instance" name="instance" placeholder="e.g., mastodon.social" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="access_token">Access Token:</label>
-                    <input type="text" id="access_token" name="access_token" placeholder="Your Mastodon access token" required>
-                    <p class="help-text">You can generate an access token in your Mastodon account settings under Development > Applications</p>
-                </div>
-                
-                <button type="submit" class="login-button">Login</button>
-            </form>
+
+            <p>Click the button below to log in using your Mastodon account on <strong><%= process.env.INSTANCE_URL %></strong>.</p>
+            <div class="login-info">
+                <p class="help-text">
+                    <strong>Login Steps:</strong>
+                </p>
+                <ol>
+                    <li>Click the login button below</li>
+                    <li>Authorize the application on Fosstodon</li>
+                    <li>Copy the authorization code shown</li>
+                    <li>Return to this app at <strong>http://localhost:3000/enter_code</strong></li>
+                    <li>Paste the code to complete login</li>
+                </ol>
+            </div>
+            <a href="/auth/mastodon" class="login-button">Login with Mastodon</a>
         </div>
     </main>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const instanceInput = document.getElementById('instance');
-            const tokenInput = document.getElementById('access_token');
-            const loginForm = document.querySelector('form');
-
-            // Load saved values from localStorage
-            const savedInstance = localStorage.getItem('mastodonInstance');
-            const savedToken = localStorage.getItem('mastodonAccessToken');
-
-            if (savedInstance) {
-                instanceInput.value = savedInstance;
-            }
-            if (savedToken) {
-                tokenInput.value = savedToken;
-            }
-
-            // Save values to localStorage on form submit
-            loginForm.addEventListener('submit', () => {
-                localStorage.setItem('mastodonInstance', instanceInput.value);
-                localStorage.setItem('mastodonAccessToken', tokenInput.value);
-            });
-        });
-    </script>
+    <!-- Removed script for saving/loading token -->
 </body>
 </html>
